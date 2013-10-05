@@ -1253,7 +1253,7 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
         $this->_assertNotInQuery();
 
         $criteria = (array) $this->_query;
-        $options  = array('multiple' => TRUE, 'safe' => $safe);
+        $options  = array('multiple' => TRUE, 'w' => (int)$safe);
 
         /* update */
         $col = $this->_getCollection();
@@ -1357,7 +1357,7 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
             }
         }
 
-        return self::_getCollection()->batchInsert($documents, array("safe" => $safe));
+        return self::_getCollection()->batchInsert($documents, array("w" => (int)$safe));
     }
     // }}}
 
