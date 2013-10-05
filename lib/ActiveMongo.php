@@ -1136,7 +1136,7 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
         $this->triggerEvent('before_'.($update ? 'update' : 'create'), array(&$document, $object));
 
         if ($update) {
-            $conn->update(array('_id' => $this->_id), $document, array('safe' => $async));
+            $conn->update(array('_id' => $this->_id), $document, array('w' => (int)$async));
             if (isset($document['$set'])) {
                 foreach ($document['$set'] as $key => $value) {
                     if (strpos($key, ".") === FALSE) {
@@ -1176,7 +1176,7 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
                 }
             }
         } else {
-            $conn->insert($document, $async);
+            $conn->insert($document, array('w' => (int)$async));
             $this->setResult($document);
         }
 
