@@ -539,6 +539,9 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
         foreach (array_diff(array_keys($past_values), array_keys($values)) as $key) {
             $super_key = "{$parent_key}.{$key}";
             $document['$unset'][$super_key] = 1;
+            if(is_numeric($key)){
+                $document['$pull'][$parent_key] = null;
+            }
         }
 
         return TRUE;
@@ -1132,11 +1135,19 @@ abstract class ActiveMongo implements Iterator, Countable, ArrayAccess
             return; /*nothing to do */
         }
 
+        if(isset($document['$pull'])){
+            $pullDocument = array('$pull' => $document['$pull']);
+            unset($document['$pull']);
+        }
+
          /* PRE-save hook */
         $this->triggerEvent('before_'.($update ? 'update' : 'create'), array(&$document, $object));
-
         if ($update) {
             $conn->update(array('_id' => $this->_id), $document, array('w' => (int)$async));
+            //fix for null values
+            if(isset($pullDocument)){
+                $conn->update(array('_id' => $this->_id), $pullDocument, array('w' => (int)$async));
+            }
             if (isset($document['$set'])) {
                 foreach ($document['$set'] as $key => $value) {
                     if (strpos($key, ".") === FALSE) {
